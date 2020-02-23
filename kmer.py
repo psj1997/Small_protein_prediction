@@ -52,14 +52,16 @@ skf = StratifiedKFold(n_splits=5, shuffle=True)
 from collections import Counter
 accuracy = []
 recall = []
+coef = []
+from sklearn.ensemble import RandomForestClassifier
 for train_index, test_index in skf.split(train_data, label):
     X_train, Y_train = train_data[train_index], label[train_index]
     X_test, Y_test = train_data[test_index], label[test_index]
 
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.fit_transform(X_test)
-    num_testing_y = Counter(Y_test)
-    print(num_testing_y)
+
+    #clf = RandomForestClassifier()
     clf = LogisticRegression()
     clf.fit(X_train,Y_train)
     acc = clf.score(X_test,Y_test)
@@ -70,8 +72,12 @@ for train_index, test_index in skf.split(train_data, label):
             num += 1
     # accuracy.append(score)
     accuracy.append(acc)
-    recall.append(num/num_testing_y[1.0])
-
+    recall.append(num/np.sum(Y_test>0))
+    # cof = clf.coef_
+    # cof = np.array(cof)
+    #coef.append(cof)
+# coef = np.array(coef)
+# coef = pd.DataFrame(coef).to_csv('/home1/pansj/Small_protein_prediction/coef.csv')
 print(accuracy)
 print('acc:',np.average(accuracy))
 print(recall)
