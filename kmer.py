@@ -49,7 +49,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
 skf = StratifiedKFold(n_splits=5, shuffle=True)
-
+from collections import Counter
 accuracy = []
 recall = []
 for train_index, test_index in skf.split(train_data, label):
@@ -58,6 +58,8 @@ for train_index, test_index in skf.split(train_data, label):
 
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.fit_transform(X_test)
+    num_testing_y = Counter(Y_test)
+    print(num_testing_y)
     clf = LogisticRegression()
     clf.fit(X_train,Y_train)
     acc = clf.score(X_test,Y_test)
@@ -68,7 +70,7 @@ for train_index, test_index in skf.split(train_data, label):
             num += 1
     # accuracy.append(score)
     accuracy.append(acc)
-    recall.append(num/len(X_test))
+    recall.append(num/num_testing_y[1.0])
 
 print(accuracy)
 print('acc:',np.average(accuracy))
