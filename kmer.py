@@ -3,31 +3,20 @@ using 3mer to build a easy baseline model of the small protein prediction
 """
 import numpy as np
 import pandas as pd
+from itertools import product
+codon_list = [''.join(cs) for cs in product('ATCG', 'ATCG', 'ATCG')]
+codon2ix = {c:i for i,c in enumerate(codon_list)}
 
-coden_list = ['AAA', 'AAT', 'AAC', 'AAG', 'ATA', 'ATT', 'ATC', 'ATG',
-            'ACA', 'ACT', 'ACC', 'ACG', 'AGA', 'AGT', 'AGC', 'AGG',
-            'TAA', 'TAT', 'TAC', 'TAG', 'TTA', 'TTT', 'TTC', 'TTG',
-            'TCA', 'TCT', 'TCC', 'TCG', 'TGA', 'TGT', 'TGC', 'TGG',
-            'CAA', 'CAT', 'CAC', 'CAG', 'CTA', 'CTT', 'CTC', 'CTG',
-            'CCA', 'CCT', 'CCC', 'CCG', 'CGA', 'CGT', 'CGC', 'CGG',
-            'GAA', 'GAT', 'GAC', 'GAG', 'GTA', 'GTT', 'GTC', 'GTG',
-            'GCA', 'GCT', 'GCC', 'GCG', 'GGA', 'GGT', 'GGC', 'GGG']
-coden_dict = {}
-count = 0
-for coden in coden_list:
-    count += 1
-    coden_dict[coden] = count
-
-#print(coden_dict)
 def seq_to_vector(seq):
-    vector = np.zeros((1,64))
+    vector = np.zeros(64)
     for i in range(len(seq)-3):
         #print(seq[i:i+3])
-        if seq[i:i+3] in coden_dict:
-            vector[0][coden_dict[seq[i:i+3]]-1] += 1
+        ix = codon2ix.get(seq[i:i+3])
+        if ix is not None:
+            vector[ix] += 1
     return vector
 
-training_data = pd.read_csv('/home1/pansj/Small_protein_prediction/training_data_whole.csv',index_col=0).values
+training_data = pd.read_csv('data/training_data_whole.csv',index_col=0).values
 data = training_data[:,0]
 
 label = training_data[:,1]
@@ -35,15 +24,8 @@ label = label.reshape(len(label),-1)
 label[label == -1] = 0
 label = np.array([y[0] for y in label]).reshape(len(label),1)
 
-data_vector = []
+train_data = np.array([seq_to_vector(seq) for seq in data])
 
-for seq in data:
-    seq_vector = seq_to_vector(seq)
-    data_vector.append(seq_vector)
-
-train_data = np.array(data_vector)
-train_data = train_data.reshape(len(train_data),64)
-print(train_data.shape)
 from sklearn.model_selection import train_test_split,StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
