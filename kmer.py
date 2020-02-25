@@ -34,8 +34,9 @@ skf = StratifiedKFold(n_splits=5, shuffle=True)
 from collections import Counter
 accuracy = []
 recall = []
-coef = []
+precision = []
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import recall_score,precision_score
 for train_index, test_index in skf.split(train_data, label):
     X_train, Y_train = train_data[train_index], label[train_index]
     X_test, Y_test = train_data[test_index], label[test_index]
@@ -48,22 +49,18 @@ for train_index, test_index in skf.split(train_data, label):
     clf.fit(X_train,Y_train)
     acc = clf.score(X_test,Y_test)
     pre = clf.predict(X_test)
-    num = 0
-    for i in range(len(pre)):
-        if pre[i] == Y_test[i] and pre[i] == 1:
-            num += 1
-    # accuracy.append(score)
+
+
     accuracy.append(acc)
-    recall.append(num/np.sum(Y_test>0))
-    # cof = clf.coef_
-    # cof = np.array(cof)
-    #coef.append(cof)
-# coef = np.array(coef)
-# coef = pd.DataFrame(coef).to_csv('/home1/pansj/Small_protein_prediction/coef.csv')
+    recall.append(recall_score(Y_test,pre))
+    precision.append(precision_score((Y_test,pre)))
+
 print(accuracy)
 print('acc:',np.average(accuracy))
 print(recall)
 print('recall:',np.average(recall))
+print(precision)
+print('precision:',np.average(precision))
 
 
 
