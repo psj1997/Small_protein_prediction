@@ -10,7 +10,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import recall_score, precision_score, accuracy_score, f1_score
 
-codon_list = [''.join(cs) for cs in product('ATCG', 'ATCG', 'ATCG','ATCG','ATCG')]
+codon_list = [''.join(cs) for cs in product('ATCG', 'ATCG', 'ATCG','ATCG')]
 codon2ix = {c:i for i,c in enumerate(codon_list)}
 
 def seq_to_vector(seq,k):
@@ -23,9 +23,10 @@ def seq_to_vector(seq,k):
     return vector
 
 def Cross_validation(is_group = False):
-    training_data = pd.read_csv('/home1/pansj/Small_protein_prediction/training_data_cluster.csv',index_col=0).values
+    training_data = pd.read_csv('/home1/pansj/Small_protein_prediction/training_upstream_cluster.csv',index_col=0).values
     print(training_data.shape)
     data = training_data[:, 0]
+    print(len(set(data)))
     label = training_data[:, 1]
     cluster = training_data[:, 3]
     print('cluster:', len(set(cluster)))
@@ -34,7 +35,7 @@ def Cross_validation(is_group = False):
     label[label == -1] = 0
     label = np.array([y[0] for y in label]).reshape(len(label), 1)
 
-    train_data = np.array([seq_to_vector(seq, 5) for seq in data])
+    train_data = np.array([seq_to_vector(seq, 4) for seq in data])
     print(len(train_data))
 
     accuracy = []
@@ -69,12 +70,13 @@ def Cross_validation(is_group = False):
             print(len(train_index), len(test_index))
             X_train, Y_train = train_data[train_index], label[train_index]
             X_test, Y_test = train_data[test_index], label[test_index]
-
+            print('train:  positive:',np.sum(Y_train>0),'negative:',np.sum(Y_train<=0))
+            print('test:  positive:', np.sum(Y_test > 0), 'negative:', np.sum(Y_test <= 0))
             X_train = scaler.fit_transform(X_train)
             X_test = scaler.fit_transform(X_test)
 
             clf = RandomForestClassifier()
-            # clf = LogisticRegression()
+            #clf = LogisticRegression()
             clf.fit(X_train, Y_train)
             acc = clf.score(X_test, Y_test)
             pre = clf.predict(X_test)
