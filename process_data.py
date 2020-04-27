@@ -260,7 +260,7 @@ def linclust():
     os.system('./mmseqs createdb whole_upstream_rmsame.fna upstream')
     os.system('mkdir tmp')
     os.system('./mmseqs linclust upstream upstream_clu tmp --min-seq-id 0.5 -c 0.5')
-    os.system('./mmseqs createtsv upstream upstream upstream_clu upstream_cluster.stv')
+    os.system('./mmseqs createtsv upstream upstream upstream_clu upstream_cluster.tsv')
 
 
 def prepare_cluster():
